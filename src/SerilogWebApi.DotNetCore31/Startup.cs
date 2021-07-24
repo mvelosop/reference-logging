@@ -31,7 +31,7 @@ namespace SerilogWebApi.DotNetCore31
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            logger.LogInformation("----- Configuring application ({EnvironmentName})", env.EnvironmentName);
+            logger.LogInformation("----- Configuring application ({EnvironmentName})", env.EnvironmentName ?? "Production");
 
             if (env.IsDevelopment())
             {
