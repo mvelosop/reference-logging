@@ -3,11 +3,17 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using System;
 
-namespace SerilogWebApi.DotNetCore31.Configuration
+namespace SerilogWebApi.DotNetCore31.Setup
 {
     public static class LoggingConfigurationExtensions
     {
-        public static LoggerConfiguration ConfigureSerilogDefaults(this LoggerConfiguration loggerConfiguration, string seqUrl, string appName, string hostName, IHostEnvironment hostEnvironment = null)
+        public static LoggerConfiguration ConfigureSerilogDefaults(
+            this LoggerConfiguration loggerConfiguration,
+            string seqUrl,
+            string seqApiKey,
+            string appName,
+            string hostName,
+            IHostEnvironment hostEnvironment = null)
         {
             loggerConfiguration
                 .MinimumLevel.Verbose()
@@ -37,7 +43,7 @@ namespace SerilogWebApi.DotNetCore31.Configuration
             }
             else
             {
-                loggerConfiguration.WriteTo.Seq(seqUrl);
+                loggerConfiguration.WriteTo.Seq(seqUrl, apiKey: seqApiKey);
             }
 
             return loggerConfiguration;

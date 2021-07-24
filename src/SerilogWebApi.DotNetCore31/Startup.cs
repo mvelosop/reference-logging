@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using SerilogWebApi.DotNetCore31.Configuration;
+using SerilogWebApi.DotNetCore31.Setup;
 
 namespace SerilogWebApi.DotNetCore31
 {
@@ -21,7 +21,7 @@ namespace SerilogWebApi.DotNetCore31
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            Log.Information("----- Configuring application services");
+            Log.Information("----- Configuring services");
 
             services.AddControllers(options => 
                 options.Filters.Add<SerilogMvcLoggingAttribute>())
