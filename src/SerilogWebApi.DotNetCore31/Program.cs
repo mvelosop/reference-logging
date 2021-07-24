@@ -18,11 +18,6 @@ namespace SerilogWebApi.DotNetCore31
         public static readonly string AppName =
             Path.GetFileNameWithoutExtension(typeof(Program).Assembly.Location);
 
-        // Used to discriminate host logs in multi-host environments
-        public static readonly string HostName =
-            Environment.GetEnvironmentVariable("HOSTNAME") ?? // For Linux
-            Environment.GetEnvironmentVariable("COMPUTERNAME"); // For Windows
-
         public static int Main(string[] args)
         {
             Console.WriteLine($"starting {AssemblyInfo.AssemblyName} - {AssemblyInfo.Version}...");
@@ -35,7 +30,7 @@ namespace SerilogWebApi.DotNetCore31
             var instrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
 
             var loggerConfiguration = new LoggerConfiguration()
-                .ConfigureSerilogDefaults(seqUrl, seqApiKey, AppName, HostName)
+                .ConfigureSerilogDefaults(AppName, seqUrl, seqApiKey)
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 // Write to Application Insights with Serilog-created sink on startup
                 .WriteTo.ApplicationInsights(instrumentationKey, TelemetryConverter.Traces);
@@ -81,7 +76,7 @@ namespace SerilogWebApi.DotNetCore31
                     var telemetryConfiguration = services.GetService<TelemetryConfiguration>();
 
                     loggerConfiguration
-                        .ConfigureSerilogDefaults(seqUrl, seqApiKey, AppName, HostName, context.HostingEnvironment)
+                        .ConfigureSerilogDefaults(AppName, seqUrl, seqApiKey, context.HostingEnvironment)
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                         // At this point we can use the standard Application Insights client. This ensures metrics and traces correlation
                         .WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces)

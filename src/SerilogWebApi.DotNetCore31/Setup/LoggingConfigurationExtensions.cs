@@ -9,16 +9,15 @@ namespace SerilogWebApi.DotNetCore31.Setup
     {
         public static LoggerConfiguration ConfigureSerilogDefaults(
             this LoggerConfiguration loggerConfiguration,
-            string seqUrl,
-            string seqApiKey,
             string appName,
-            string hostName,
+            string seqUrl = null,
+            string seqApiKey = null,
             IHostEnvironment hostEnvironment = null)
         {
             loggerConfiguration
                 .MinimumLevel.Verbose()
                 .Enrich.WithProperty("ApplicationContext", appName)
-                .Enrich.WithProperty("HostName", hostName)
+                .Enrich.WithMachineName()
                 .Enrich.FromLogContext()
                 .Destructure.JsonNetTypes() // Enable JObject destruturing
                 .WriteTo.Console()
@@ -26,6 +25,7 @@ namespace SerilogWebApi.DotNetCore31.Setup
                     $@"D:\home\LogFiles\{appName}-.log",
                     rollingInterval: RollingInterval.Day,
                     retainedFileCountLimit: 7,
+                    rollOnFileSizeLimit: true,
                     shared: true,
                     flushToDiskInterval: TimeSpan.FromSeconds(1));
 
