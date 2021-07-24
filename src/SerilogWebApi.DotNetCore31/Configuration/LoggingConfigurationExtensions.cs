@@ -13,6 +13,7 @@ namespace SerilogWebApi.DotNetCore31.Configuration
                 .MinimumLevel.Verbose()
                 .Enrich.WithProperty("ApplicationContext", appName)
                 .Enrich.WithProperty("HostName", hostName)
+                .Enrich.FromLogContext()
                 .Destructure.JsonNetTypes() // Enable JObject destruturing
                 .WriteTo.Console()
                 .WriteTo.File( // Write to standard Azure AppService-monitored log location
