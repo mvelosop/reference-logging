@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
-using SerilogWebApi.DotNetCore31.Configuration;
+using SerilogWebApi.DotNetCore31.Setup;
 
 namespace SerilogWebApi.DotNetCore31
 {
@@ -25,21 +25,22 @@ namespace SerilogWebApi.DotNetCore31
 
         public static int Main(string[] args)
         {
+            Console.WriteLine($"starting {AssemblyInfo.AssemblyName} - {AssemblyInfo.Version}...");
+
             /* Create a "fail-safe" logger available during startup
              * ---------------------------------------------------- */
 
             var seqUrl = Environment.GetEnvironmentVariable("SEQ_URL");
+            var seqApiKey = Environment.GetEnvironmentVariable("SEQ_APIKEY");
             var instrumentationKey = Environment.GetEnvironmentVariable("APPINSIGHTS_INSTRUMENTATIONKEY");
 
             var loggerConfiguration = new LoggerConfiguration()
-                .ConfigureSerilogDefaults(seqUrl, AppName, HostName)
+                .ConfigureSerilogDefaults(seqUrl, seqApiKey, AppName, HostName)
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
                 // Write to Application Insights with Serilog-created sink on startup
                 .WriteTo.ApplicationInsights(instrumentationKey, TelemetryConverter.Traces);
 
             Log.Logger = loggerConfiguration.CreateBootstrapLogger();
-
-            Console.Write($"{AssemblyInfo.AssemblyName} - {AssemblyInfo.Version}");
 
             try
             {
@@ -76,10 +77,11 @@ namespace SerilogWebApi.DotNetCore31
                 .UseSerilog((context, services, loggerConfiguration) =>
                 {
                     var seqUrl = Environment.GetEnvironmentVariable("SEQ_URL");
+                    var seqApiKey = Environment.GetEnvironmentVariable("SEQ_APIKEY");
                     var telemetryConfiguration = services.GetService<TelemetryConfiguration>();
 
                     loggerConfiguration
-                        .ConfigureSerilogDefaults(seqUrl, AppName, HostName, context.HostingEnvironment)
+                        .ConfigureSerilogDefaults(seqUrl, seqApiKey, AppName, HostName, context.HostingEnvironment)
                         .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                         // At this point we can use the standard Application Insights client. This ensures metrics and traces correlation
                         .WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces)
