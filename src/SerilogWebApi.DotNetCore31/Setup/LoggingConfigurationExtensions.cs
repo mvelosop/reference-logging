@@ -34,17 +34,23 @@ namespace SerilogWebApi.DotNetCore31.Setup
                 : hostEnvironment.EnvironmentName;
 
             // Add Seq for development by default or always if configured
-            if (string.IsNullOrWhiteSpace(seqUrl))
+            var seqServer = string.IsNullOrWhiteSpace(seqUrl) && string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase)
+                ? "http://localhost:5341"
+                : seqUrl;
+
+            Console.WriteLine();
+
+            if (string.IsNullOrWhiteSpace(seqServer))
             {
-                if (string.Equals(environment, "Development", StringComparison.OrdinalIgnoreCase))
-                {
-                    loggerConfiguration.WriteTo.Seq("http://localhost:5341");
-                }
+                Console.WriteLine("--- * NOT LOGGING TO SEQ SERVER * ---");
             }
             else
             {
-                loggerConfiguration.WriteTo.Seq(seqUrl, apiKey: seqApiKey);
+                Console.WriteLine($"--- * LOGGING TO SEQ SERVER: {seqServer} * ---");
+                loggerConfiguration.WriteTo.Seq(seqServer, apiKey: seqApiKey);
             }
+
+            Console.WriteLine();
 
             return loggerConfiguration;
         }

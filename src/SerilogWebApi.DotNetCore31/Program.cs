@@ -31,9 +31,13 @@ namespace SerilogWebApi.DotNetCore31
 
             var loggerConfiguration = new LoggerConfiguration()
                 .ConfigureSerilogDefaults(AppName, seqUrl, seqApiKey)
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Information);
+
+            if (!string.IsNullOrWhiteSpace(instrumentationKey))
+            {
                 // Write to Application Insights with Serilog-created sink on startup
-                .WriteTo.ApplicationInsights(instrumentationKey, TelemetryConverter.Traces);
+                loggerConfiguration.WriteTo.ApplicationInsights(instrumentationKey, TelemetryConverter.Traces);
+            }
 
             Log.Logger = loggerConfiguration.CreateBootstrapLogger();
 
@@ -77,11 +81,16 @@ namespace SerilogWebApi.DotNetCore31
 
                     loggerConfiguration
                         .ConfigureSerilogDefaults(AppName, seqUrl, seqApiKey, context.HostingEnvironment)
-                        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning);
+
+                    if (!context.HostingEnvironment.IsDevelopment())
+                    {
                         // At this point we can use the standard Application Insights client. This ensures metrics and traces correlation
-                        .WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces)
-                        // Use Serilog configuration from IConfiguration and DI services
-                        .ReadFrom.Configuration(context.Configuration);
+                        loggerConfiguration.WriteTo.ApplicationInsights(telemetryConfiguration, TelemetryConverter.Traces);
+                    }
+
+                    // Use Serilog configuration from IConfiguration
+                    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
                 });
     }
 }
